@@ -1,0 +1,21 @@
+{
+  "name": "Sentai",
+  "version": "0.0.0",
+  "description": "Reactive Entity Component System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gh:antisocialmunky/sentai.git"
+  },
+  "author": "David Tai",
+  "license": "BSD",
+  "gitHead": "86e087fb160ae282a371d20ea771f1a7b7a0dea4",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "chai": "~1.9.1",
+    "mocha": "~1.18.2"
+  }
+}
