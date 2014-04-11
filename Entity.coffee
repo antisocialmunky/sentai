@@ -27,6 +27,13 @@ class Entity extends Events
   constructor: ()->
     super(context: @)
 
+class Entity.Component
+  entity = null
+  constructor: (entity, options)->
+    @entity = entity
+    @initialize(options)
+  initialize: (options)->
+
 componentId = 0
 Entity.Class = Class = (components)->
   # Principle member of this closure
@@ -59,14 +66,13 @@ Entity.Class = Class = (components)->
       for component in components
         # check for special ids
         componentId = component.name
-        componentInstance = @_components[componentId] = new component(options[componentId] || options)
+        componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
         events = component.prototype.on
         if events?
           for event in events
             cb = component.prototype[event]
             if cb?
               @on(event, cb, componentInstance, NewClass)
-
 
   for v, getSet of getSets
     config = (__v) ->

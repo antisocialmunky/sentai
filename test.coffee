@@ -9,17 +9,18 @@ describe 'Entity.Class', ->
     entity.context.should.equal entity
 
   it 'should create a new Entity with a dummy component', ->
-    class Component1
-      constructor: ()->
+    class Component1 extends Entity.Component
 
     Clas = Entity.Class([Component1])
 
     entity = new Clas()
+
+    entity._components['Component1'].entity.should.equal entity
     entity._components['Component1'].should.be.instanceof Component1
 
   it 'should correctly bind events defined using on', ->
     ticked = false
-    class Component1
+    class Component1 extends Entity.Component
       on: ['tick']
       tick: ()->
         ticked = true
@@ -35,7 +36,7 @@ describe 'Entity.Class', ->
 
   it 'should be reactive to observed values values', ->
     varChanges = 0
-    class Component1
+    class Component1 extends Entity.Component
       on: ['tick']
       obs: 
         change: ['a', 'b']
@@ -53,7 +54,7 @@ describe 'Entity.Class', ->
     varChanges.should.equal 1
 
     entity.b = 200
-    
+
     entity.__b.should.equal 200
     entity.b.should.equal 200
     varChanges.should.equal 2

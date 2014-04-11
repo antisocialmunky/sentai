@@ -77,6 +77,24 @@
 
   })(Events);
 
+  Entity.Component = (function() {
+    var entity;
+
+    Component.name = 'Component';
+
+    entity = null;
+
+    function Component(entity, options) {
+      this.entity = entity;
+      this.initialize(options);
+    }
+
+    Component.prototype.initialize = function(options) {};
+
+    return Component;
+
+  })();
+
   componentId = 0;
 
   Entity.Class = Class = function(components) {
@@ -126,7 +144,7 @@
         for (_k = 0, _len2 = components.length; _k < _len2; _k++) {
           component = components[_k];
           componentId = component.name;
-          componentInstance = this._components[componentId] = new component(options[componentId] || options);
+          componentInstance = this._components[componentId] = new component(this, options[componentId] || options);
           events = component.prototype.on;
           if (events != null) {
             for (_l = 0, _len3 = events.length; _l < _len3; _l++) {
