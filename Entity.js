@@ -166,7 +166,8 @@
                 }
                 getSet.push({
                   ctx: id,
-                  cb: cb
+                  cb: cb,
+                  vars: vars
                 });
               }
             }
@@ -240,12 +241,18 @@
             return this[__v];
           },
           set: function(val) {
-            var getSetConfig, _k, _len2, _results;
+            var arg, args, getSetConfig, _k, _l, _len2, _len3, _ref, _results;
             this[__v] = val;
             _results = [];
             for (_k = 0, _len2 = getSet.length; _k < _len2; _k++) {
               getSetConfig = getSet[_k];
-              _results.push(getSetConfig.cb.call(this._components[getSetConfig.ctx]));
+              args = [];
+              _ref = getSetConfig.vars;
+              for (_l = 0, _len3 = _ref.length; _l < _len3; _l++) {
+                arg = _ref[_l];
+                args.push(this[arg]);
+              }
+              _results.push(getSetConfig.cb.apply(this._components[getSetConfig.ctx], args));
             }
             return _results;
           }

@@ -102,22 +102,25 @@
       return ticked.should.be["true"];
     });
     it('should be reactive to observed values', function() {
-      var Clas, Component, entity, varChanges;
+      var Clas, Component, aValue, bValue, entity, varChanges;
       varChanges = 0;
+      aValue = 0;
+      bValue = 0;
       Component = Entity.Componentize(Component = (function() {
 
         Component.name = 'Component';
 
         function Component() {}
 
-        Component.prototype.change = function() {
-          return varChanges++;
+        Component.prototype.change = function(a, b) {
+          varChanges++;
+          aValue = a;
+          return bValue = b;
         };
 
         return Component;
 
       })(), {
-        listenTo: 'tick',
         observes: {
           change: ['a', 'b']
         }
@@ -125,33 +128,37 @@
       Clas = Entity.Class(Component);
       entity = new Clas();
       entity.a = 100;
+      aValue.should.equal(100);
       entity.__a.should.equal(100);
       entity.a.should.equal(100);
       varChanges.should.equal(1);
       entity.b = 200;
+      aValue.should.equal(100);
+      bValue.should.equal(200);
       entity.__b.should.equal(200);
       entity.b.should.equal(200);
       return varChanges.should.equal(2);
     });
     return it('should be reactive to synced values', function() {
-      var Clas, Component1, Component2, component2, entity, varChanges;
+      var Clas, Component1, Component2, aValue, component2, entity, varChanges;
       varChanges = 0;
+      aValue = 0;
       Component1 = Entity.Componentize(Component1 = (function() {
 
         Component1.name = 'Component1';
 
         function Component1() {}
 
-        Component1.prototype.change = function() {
+        Component1.prototype.change = function(a) {
+          aValue = a;
           return varChanges++;
         };
 
         return Component1;
 
       })(), {
-        listenTo: 'tick',
         observes: {
-          change: ['a']
+          change: 'a'
         }
       });
       Component2 = Entity.Componentize(Component2 = (function() {
@@ -170,12 +177,14 @@
       Clas = Entity.Class([Component1, Component2]);
       entity = new Clas();
       component2 = entity._components[Component2._id];
+      aValue.should.equal(100);
       component2.__a.should.equal(100);
       component2.a.should.equal(100);
       entity.__a.should.equal(100);
       entity.a.should.equal(100);
       varChanges.should.equal(1);
       component2.a = 200;
+      aValue.should.equal(200);
       component2.__a.should.equal(200);
       component2.a.should.equal(200);
       entity.__a.should.equal(200);

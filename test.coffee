@@ -68,12 +68,15 @@ describe 'Entity.Class', ->
 
   it 'should be reactive to observed values', ->
     varChanges = 0
+    aValue = 0
+    bValue = 0
 
     Component = Entity.Componentize(
       class Component
-        change: ()->
+        change: (a, b)->
           varChanges++  
-      listenTo: 'tick'
+          aValue = a
+          bValue = b
       observes: 
         change: ['a', 'b'])
 
@@ -83,26 +86,31 @@ describe 'Entity.Class', ->
 
     entity.a = 100
 
+    aValue.should.equal 100
+    #bValue.should.equal undefined
     entity.__a.should.equal 100
     entity.a.should.equal 100
     varChanges.should.equal 1
 
     entity.b = 200
 
+    aValue.should.equal 100
+    bValue.should.equal 200
     entity.__b.should.equal 200
     entity.b.should.equal 200
     varChanges.should.equal 2
 
   it 'should be reactive to synced values', ->
     varChanges = 0
+    aValue = 0
 
     Component1 = Entity.Componentize(
       class Component1
-        change: ()->
+        change: (a)->
+          aValue = a
           varChanges++  
-      listenTo: 'tick'
       observes: 
-        change: ['a'])
+        change: 'a')
 
     Component2 = Entity.Componentize(
       class Component2
@@ -114,6 +122,7 @@ describe 'Entity.Class', ->
     entity = new Clas()
     component2 = entity._components[Component2._id]
 
+    aValue.should.equal 100
     component2.__a.should.equal 100
     component2.a.should.equal 100
     entity.__a.should.equal 100
@@ -122,6 +131,7 @@ describe 'Entity.Class', ->
 
     component2.a = 200
     
+    aValue.should.equal 200
     component2.__a.should.equal 200
     component2.a.should.equal 200
     entity.__a.should.equal 200

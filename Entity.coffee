@@ -86,8 +86,9 @@ Entity.Class = Class = (components)->
                 getSets[v] = getSet = []
               # id will be looked up with actual component instance
               getSet.push(
-                ctx: id, 
-                cb: cb)
+                ctx: id
+                cb: cb
+                vars: vars)
 
   class NewClass extends Entity
     _components: null
@@ -132,7 +133,10 @@ Entity.Class = Class = (components)->
           @[__v] = val
           # execute the reactive stuff based on the getSet config.
           for getSetConfig in getSet
-            getSetConfig.cb.call(@_components[getSetConfig.ctx])
+            args = []
+            for arg in getSetConfig.vars
+              args.push(@[arg])  
+            getSetConfig.cb.apply(@_components[getSetConfig.ctx], args)
       }
     Object.defineProperty(NewClass.prototype, v, config('__' + v))
 
