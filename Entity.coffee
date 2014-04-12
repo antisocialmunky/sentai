@@ -27,27 +27,59 @@ class Entity extends Events
   constructor: ()->
     super(context: @)
 
-class Entity.Component
-  entity = null
-  constructor: (entity, options)->
-    @entity = entity
-    @initialize(options)
-  initialize: (options)->
-
 componentId = 0
+
+addSyncs = (component, sync)->
+  if sync?
+    for v in sync
+      config = (__v) ->
+        component.prototype[__v] = component.prototype[v]
+        return {
+          get: ()->
+            return @[__v]
+          set: (val)->
+            @[__v] = val
+            @entity[v] = val
+        }
+      Object.defineProperty(component.prototype, v, config('__' + v))
+
+Entity.Componentize = (component, config)->
+  if config?
+    sync = config.sync
+    if !(sync instanceof Array)
+      sync = [sync]
+  else
+    config = {}
+  class NewComponent extends component
+    _id: componentId++
+    _sync: sync
+    _listenTo: config.listenTo
+    _observes: config.observes
+    constructor: (entity, options)->
+      @entity = entity
+      super(options)
+
+  addSyncs(component, sync)
+  
+  return NewComponent
+
 Entity.Class = Class = (components)->
   # Principle member of this closure
   getSets = {}
+  if !(components instanceof Array)
+    components = [components]
   for component in components
     if component? && component.prototype?
-      id = component.name
+      id = component._id
       # loop through all the observables
-      obs = component.prototype.obs
-      if obs?
-        for func, vars of obs
+      observes = component.prototype._observes
+      if observes?
+        for func, vars of observes
           cb = component.prototype[func]
           if cb?
             # register reactivity config with getSet
+            if !(vars instanceof Array)
+              vars = [vars]
             for v in vars
               getSet = getSets[v]
               if !getSet?
@@ -65,14 +97,31 @@ Entity.Class = Class = (components)->
       @_components = {}
       for component in components
         # check for special ids
-        componentId = component.name
+        componentId = component._id
         componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
-        events = component.prototype.on
+        events = component.prototype._listenTo
         if events?
+          if !(events instanceof Array)
+            events = [events]
           for event in events
-            cb = component.prototype[event]
+            if event instanceof Object
+              event = event.on
+              eventName = event.do
+              if typeof eventName == 'function'
+                cb = eventName
+              else
+                cb = component.prototype[eventName]                
+            else
+              cb = component.prototype[event]
             if cb?
               @on(event, cb, componentInstance, NewClass)
+
+      for component in components
+        sync = component.prototype._sync
+        if sync?
+          for v in sync
+            @[v] = component.prototype['__' + v]
+
 
   for v, getSet of getSets
     config = (__v) ->

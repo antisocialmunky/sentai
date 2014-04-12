@@ -1,10 +1,10 @@
 {
-  "name": "Sentai",
-  "version": "0.0.0",
+  "name": "sentai",
+  "version": "0.0.2",
   "description": "Reactive Entity Component System",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha ./test.js"
   },
   "repository": {
     "type": "git",
