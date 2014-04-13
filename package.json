@@ -4,7 +4,7 @@
   "description": "Reactive Entity Component System",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test.js"
+    "test": "mocha --compilers coffee:coffee-script/register test"
   },
   "repository": {
     "type": "git",

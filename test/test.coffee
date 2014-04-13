@@ -1,5 +1,5 @@
 should = require('chai').should()
-Entity = require './Entity'
+Entity = require '../src/entity'
 
 describe 'Entity.Componentize', ->
   it 'should create a new Component class from a class', ->

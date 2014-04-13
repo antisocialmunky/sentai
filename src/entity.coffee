@@ -1,3 +1,5 @@
+require 'coffee-script'
+
 class Events
   context: null
   events: null

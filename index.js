@@ -1,1 +1,1 @@
-Entity = require('Entity');
+entity = require('src/entity');
