@@ -21,7 +21,7 @@
       Clas = Entity.Class(Component);
       entity = new Clas();
       component = entity._components[Component._id];
-      return component.entity.should.equal(entity);
+      return component._entity.should.equal(entity);
     });
     return it('should sync the entity with the component variables', function() {
       var Clas, Component, component, entity, position;
@@ -38,9 +38,7 @@
 
         return Component;
 
-      })(), {
-        sync: 'position'
-      });
+      })()).sync('position');
       Clas = Entity.Class(Component);
       entity = new Clas();
       component = entity._components[Component._id];
@@ -74,7 +72,7 @@
       })());
       Clas = Entity.Class(Component);
       entity = new Clas();
-      entity._components[Component._id].entity.should.equal(entity);
+      entity._components[Component._id]._entity.should.equal(entity);
       return entity._components[Component._id].should.be["instanceof"](Component);
     });
     it('should correctly bind events defined using on', function() {
@@ -92,9 +90,7 @@
 
         return Component;
 
-      })(), {
-        listenTo: 'tick'
-      });
+      })()).listensTo('tick');
       Clas = Entity.Class(Component);
       entity = new Clas();
       Clas.prototype.tick.should.exist;
@@ -120,10 +116,8 @@
 
         return Component;
 
-      })(), {
-        observes: {
-          change: ['a', 'b']
-        }
+      })()).observes({
+        change: ['a', 'b']
       });
       Clas = Entity.Class(Component);
       entity = new Clas();
@@ -140,7 +134,7 @@
       return varChanges.should.equal(2);
     });
     return it('should be reactive to synced values', function() {
-      var Clas, Component1, Component2, aValue, component2, entity, varChanges;
+      var Clas, Component1, Component2, aValue, component1, component2, entity, varChanges;
       varChanges = 0;
       aValue = 0;
       Component1 = Entity.Componentize(Component1 = (function() {
@@ -149,17 +143,18 @@
 
         function Component1() {}
 
+        Component1.prototype.a = -1;
+
         Component1.prototype.change = function(a) {
+          this.a = a;
           aValue = a;
           return varChanges++;
         };
 
         return Component1;
 
-      })(), {
-        observes: {
-          change: 'a'
-        }
+      })()).observes({
+        change: 'a'
       });
       Component2 = Entity.Componentize(Component2 = (function() {
 
@@ -171,13 +166,13 @@
 
         return Component2;
 
-      })(), {
-        sync: 'a'
-      });
+      })()).sync('a');
       Clas = Entity.Class([Component1, Component2]);
       entity = new Clas();
+      component1 = entity._components[Component1._id];
       component2 = entity._components[Component2._id];
       aValue.should.equal(100);
+      component1.a.should.equal(100);
       component2.__a.should.equal(100);
       component2.a.should.equal(100);
       entity.__a.should.equal(100);
@@ -185,6 +180,7 @@
       varChanges.should.equal(1);
       component2.a = 200;
       aValue.should.equal(200);
+      component1.a.should.equal(200);
       component2.__a.should.equal(200);
       component2.a.should.equal(200);
       entity.__a.should.equal(200);

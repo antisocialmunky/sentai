@@ -27,40 +27,62 @@ class Entity extends Events
   constructor: ()->
     super(context: @)
 
-componentId = 0
-
-addSyncs = (component, sync)->
+addSyncs = (sync)->
   if sync?
+    prototype = @prototype
+    sync = Array.prototype.slice.call(arguments)
+    if !prototype._sync?
+      prototype._sync = sync
+    else
+      prototype._sync = prototype._sync.concat(sync)
     for v in sync
       config = (__v) ->
-        component.prototype[__v] = component.prototype[v]
+        prototype[__v] = prototype[v]
         return {
           get: ()->
             return @[__v]
           set: (val)->
             @[__v] = val
-            @entity[v] = val
+            @_entity[v] = val
         }
-      Object.defineProperty(component.prototype, v, config('__' + v))
+      Object.defineProperty(prototype, v, config('__' + v))
+  return @
 
-Entity.Componentize = (component, config)->
-  if config?
-    sync = config.sync
-    if !(sync instanceof Array)
-      sync = [sync]
-  else
-    config = {}
+addListensTo = (listensTo)->
+  if listensTo
+    prototype = @prototype
+    listensTo = Array.prototype.slice.call(arguments)
+    if !prototype._listensTo?
+      prototype._listensTo = listensTo
+    else
+      prototype._listensTo = prototype._listensTo.concat(listensTo)
+  return @
+
+addObserves = (observes)->
+  if observes
+    prototype = @prototype
+    if !prototype._observes?
+      prototype._observes = {}
+    for key, val of observes
+      prototype._observes[key] = val
+  return @
+
+ComponentId = 0
+Entity.Componentize = (component, name)->
+  id = if name? then name else ComponentId++
   class NewComponent extends component
-    _id: componentId++
-    _sync: sync
-    _listenTo: config.listenTo
-    _observes: config.observes
+    @_id: id
+    _id: id
+    _sync: null
+    _listensTo: null
+    _observes: null
     constructor: (entity, options)->
-      @entity = entity
-      super(options)
-
-  addSyncs(component, sync)
+      @_entity = entity
+      super(options) 
   
+  NewComponent.sync = addSyncs
+  NewComponent.listensTo = addListensTo
+  NewComponent.observes = addObserves
   return NewComponent
 
 Entity.Class = Class = (components)->
@@ -92,15 +114,16 @@ Entity.Class = Class = (components)->
 
   class NewClass extends Entity
     _components: null
+    _options: null
     constructor: (options)->
       super
-      options = {} if !options?
+      options = _options = {} if !options?
       @_components = {}
       for component in components
         # check for special ids
         componentId = component._id
         componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
-        events = component.prototype._listenTo
+        events = component.prototype._listensTo
         if events?
           if !(events instanceof Array)
             events = [events]
@@ -122,7 +145,6 @@ Entity.Class = Class = (components)->
         if sync?
           for v in sync
             @[v] = component.prototype['__' + v]
-
 
   for v, getSet of getSets
     config = (__v) ->
