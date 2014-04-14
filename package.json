@@ -2,7 +2,7 @@
   "name": "sentai",
   "version": "0.0.2",
   "description": "Reactive Entity Component System",
-  "main": "index.js",
+  "main": "./lib/entity",
   "scripts": {
     "test": "mocha --compilers coffee:coffee-script/register test"
   },
