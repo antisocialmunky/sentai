@@ -2,9 +2,9 @@
   "name": "sentai",
   "version": "0.0.3",
   "description": "Reactive Entity Component System",
-  "main": "./lib/entity",
+  "main": "./lib/sentai",
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script/register test"
+    "test": "cake build"
   },
   "repository": {
     "type": "git",

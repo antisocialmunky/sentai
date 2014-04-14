@@ -68,7 +68,7 @@ addObserves = (observes)->
   return @
 
 ComponentId = 0
-Entity.Componentize = (component, name)->
+Componentize = (component, name)->
   id = if name? then name else ComponentId++
   class NewComponent extends component
     @_id: id
@@ -85,7 +85,7 @@ Entity.Componentize = (component, name)->
   NewComponent.observes = addObserves
   return NewComponent
 
-Entity.Class = Class = (components)->
+Class = (components)->
   # Principle member of this closure
   getSets = {}
   if !(components instanceof Array)
@@ -164,4 +164,9 @@ Entity.Class = Class = (components)->
 
   return NewClass
 
-module.exports = Entity
+Sentai = 
+  Entity: Entity
+  Class: Class
+  Componentize: Componentize
+
+module.exports = Sentai if module

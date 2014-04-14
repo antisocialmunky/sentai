@@ -1,25 +1,25 @@
 should = require('chai').should()
-Entity = require '../src/entity'
+Sentai = require '../src/sentai'
 
-describe 'Entity.Componentize', ->
+describe 'Sentai.Componentize', ->
   it 'should create a new Component class from a class', ->
-    Component = Entity.Componentize(class Component)
+    Component = Sentai.Componentize(class Component)
 
-    Clas = Entity.Class(Component)
+    Clas = Sentai.Class(Component)
     entity = new Clas()
 
     component = entity._components[Component._id]
     component._entity.should.equal entity
 
   it 'should sync the entity with the component variables', ->
-    Component = Entity.Componentize(
+    Component = Sentai.Componentize(
       class Component
         position:
           x: 1
           y: 1)
       .sync('position')
 
-    Clas = Entity.Class(Component)
+    Clas = Sentai.Class(Component)
     entity = new Clas()
 
     component = entity._components[Component._id]
@@ -32,17 +32,17 @@ describe 'Entity.Componentize', ->
     entity.position.should.equal position
     component.__position.should.equal position
 
-describe 'Entity.Class', ->
-  it 'should create a new componentless Entity which builds correctly', ->
-    Clas = Entity.Class([])
+describe 'Sentai.Class', ->
+  it 'should create a new componentless Sentai which builds correctly', ->
+    Clas = Sentai.Class([])
 
     entity = new Clas()
     entity.context.should.equal entity
 
-  it 'should create a new Entity with a dummy component', ->
-    Component = Entity.Componentize(class Component)
+  it 'should create a new Sentai with a dummy component', ->
+    Component = Sentai.Componentize(class Component)
 
-    Clas = Entity.Class(Component)
+    Clas = Sentai.Class(Component)
     entity = new Clas()
 
     entity._components[Component._id]._entity.should.equal entity
@@ -51,13 +51,13 @@ describe 'Entity.Class', ->
   it 'should correctly bind events defined using on', ->
     ticked = false
 
-    Component = Entity.Componentize(
+    Component = Sentai.Componentize(
       class Component
         tick: ()->
           ticked = true)
       .listensTo('tick')
 
-    Clas = Entity.Class(Component)
+    Clas = Sentai.Class(Component)
 
     entity = new Clas()
 
@@ -71,7 +71,7 @@ describe 'Entity.Class', ->
     aValue = 0
     bValue = 0
 
-    Component = Entity.Componentize(
+    Component = Sentai.Componentize(
       class Component
         change: (a, b)->
           varChanges++  
@@ -79,7 +79,7 @@ describe 'Entity.Class', ->
           bValue = b)
       .observes(change: ['a', 'b'])
 
-    Clas = Entity.Class(Component)
+    Clas = Sentai.Class(Component)
 
     entity = new Clas()
 
@@ -103,7 +103,7 @@ describe 'Entity.Class', ->
     varChanges = 0
     aValue = 0
 
-    Component1 = Entity.Componentize(
+    Component1 = Sentai.Componentize(
       class Component1
         a: -1
         change: (a)->
@@ -112,12 +112,12 @@ describe 'Entity.Class', ->
           varChanges++)
       .observes(change: 'a')
 
-    Component2 = Entity.Componentize(
+    Component2 = Sentai.Componentize(
       class Component2
         a: 100)
       .sync('a')
 
-    Clas = Entity.Class([Component1, Component2])
+    Clas = Sentai.Class([Component1, Component2])
 
     entity = new Clas()
     component1 = entity._components[Component1._id]
