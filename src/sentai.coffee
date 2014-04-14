@@ -166,7 +166,7 @@ Class = (components)->
 
 Sentai = 
   Entity: Entity
-  Class: Class
-  Componentize: Componentize
+  class: Class
+  componentize: Componentize
 
 module.exports = Sentai if module
