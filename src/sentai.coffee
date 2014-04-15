@@ -67,32 +67,35 @@ addObserves = (observes)->
       prototype._observes[key] = val
   return @
 
-ComponentId = 0
-Componentize = (component, name)->
-  id = if name? then name else ComponentId++
+componentId = 0
+componentize = (component, extensions)->
+  id = componentId++
   class NewComponent extends component
-    @_id: id
-    _id: id
+    @type: id
+    _type: id
     _sync: null
     _listensTo: null
     _observes: null
     constructor: (entity, options)->
       @_entity = entity
       super(options) 
+
+  if extensions?
+    for name, extension of extensions
+      NewComponent.prototype[name] = extension
   
   NewComponent.sync = addSyncs
   NewComponent.listensTo = addListensTo
   NewComponent.observes = addObserves
   return NewComponent
 
-Class = (components)->
+entity = ()->
   # Principle member of this closure
   getSets = {}
-  if !(components instanceof Array)
-    components = [components]
+  components =  Array.prototype.slice.call(arguments)
   for component in components
     if component? && component.prototype?
-      id = component._id
+      id = component.type
       # loop through all the observables
       observes = component.prototype._observes
       if observes?
@@ -121,12 +124,10 @@ Class = (components)->
       @_components = {}
       for component in components
         # check for special ids
-        componentId = component._id
+        componentId = component.type
         componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
         events = component.prototype._listensTo
         if events?
-          if !(events instanceof Array)
-            events = [events]
           for event in events
             if event instanceof Object
               event = event.on
@@ -152,21 +153,21 @@ Class = (components)->
         get: ()->
           return @[__v]
         set: (val)->
-          @[__v] = val
-          # execute the reactive stuff based on the getSet config.
-          for getSetConfig in getSet
-            args = []
-            for arg in getSetConfig.vars
-              args.push(@[arg])  
-            getSetConfig.cb.apply(@_components[getSetConfig.ctx], args)
+          if @[__v] != val
+            @[__v] = val
+            # execute the reactive stuff based on the getSet config.
+            for getSetConfig in getSet
+              args = []
+              for arg in getSetConfig.vars
+                args.push(@[arg])  
+              getSetConfig.cb.apply(@_components[getSetConfig.ctx], args)
       }
     Object.defineProperty(NewClass.prototype, v, config('__' + v))
 
   return NewClass
 
 Sentai = 
-  Entity: Entity
-  class: Class
-  componentize: Componentize
+  entity: entity
+  componentize: componentize
 
 module.exports = Sentai if module

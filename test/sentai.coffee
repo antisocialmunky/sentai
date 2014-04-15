@@ -5,10 +5,10 @@ describe 'Sentai.componentize', ->
   it 'should create a new Component class from a class', ->
     Component = Sentai.componentize(class Component)
 
-    Clas = Sentai.class(Component)
+    Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    component = entity._components[Component._id]
+    component = entity._components[Component.type]
     component._entity.should.equal entity
 
   it 'should sync the entity with the component variables', ->
@@ -19,10 +19,10 @@ describe 'Sentai.componentize', ->
           y: 1)
       .sync('position')
 
-    Clas = Sentai.class(Component)
+    Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    component = entity._components[Component._id]
+    component = entity._components[Component.type]
     entity.position.should.equal component.position
 
     position = component.position = 
@@ -32,9 +32,22 @@ describe 'Sentai.componentize', ->
     entity.position.should.equal position
     component.__position.should.equal position
 
-describe 'Sentai.class', ->
+  it 'should chain properly', ->
+    Component = Sentai.componentize(
+      class Component
+        position:
+          x: 1
+          y: 1)
+    Component1 = Component
+      .sync('position')
+      .observes('a', 'b')
+      .listensTo('tick')
+
+    Component.should.equal Component1
+
+describe 'Sentai.entity', ->
   it 'should create a new componentless Sentai which builds correctly', ->
-    Clas = Sentai.class([])
+    Clas = Sentai.entity()
 
     entity = new Clas()
     entity.context.should.equal entity
@@ -42,13 +55,13 @@ describe 'Sentai.class', ->
   it 'should create a new Sentai with a dummy component', ->
     Component = Sentai.componentize(class Component)
 
-    Clas = Sentai.class(Component)
+    Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    entity._components[Component._id]._entity.should.equal entity
-    entity._components[Component._id].should.be.instanceof Component
+    entity._components[Component.type]._entity.should.equal entity
+    entity._components[Component.type].should.be.instanceof Component
 
-  it 'should correctly bind events defined using on', ->
+  it 'should correctly bind events defined using listensTo', ->
     ticked = false
 
     Component = Sentai.componentize(
@@ -57,7 +70,25 @@ describe 'Sentai.class', ->
           ticked = true)
       .listensTo('tick')
 
-    Clas = Sentai.class(Component)
+    Clas = Sentai.entity(Component)
+
+    entity = new Clas()
+
+    Clas.prototype.tick.should.exist
+    entity.tick()
+
+    ticked.should.be.true
+
+  it 'should correctly used extended values', ->
+    ticked = false
+
+    Component = Sentai.componentize(
+      class Component
+      tick: ()->
+        ticked = true)
+      .listensTo('tick')
+
+    Clas = Sentai.entity(Component)
 
     entity = new Clas()
 
@@ -79,7 +110,7 @@ describe 'Sentai.class', ->
           bValue = b)
       .observes(change: ['a', 'b'])
 
-    Clas = Sentai.class(Component)
+    Clas = Sentai.entity(Component)
 
     entity = new Clas()
 
@@ -117,11 +148,11 @@ describe 'Sentai.class', ->
         a: 100)
       .sync('a')
 
-    Clas = Sentai.class([Component1, Component2])
+    Clas = Sentai.entity(Component1, Component2)
 
     entity = new Clas()
-    component1 = entity._components[Component1._id]
-    component2 = entity._components[Component2._id]
+    component1 = entity._components[Component1.type]
+    component2 = entity._components[Component2.type]
 
     aValue.should.equal 100
     component1.a.should.equal 100
@@ -140,3 +171,48 @@ describe 'Sentai.class', ->
     entity.__a.should.equal 200
     entity.a.should.equal 200
     varChanges.should.equal 2
+
+  it 'should not infinite loop if the same value is set', ->
+    varChanges = 0
+    aValue = 0
+
+    Component1 = Sentai.componentize(
+      class Component1
+        a: 100
+        change: (a)->
+          @a = a
+          aValue = a
+          varChanges++)
+      .observes(change: 'a')
+      .sync('a')
+
+    Clas = Sentai.entity(Component1)
+
+    entity = new Clas()
+    component1 = entity._components[Component1.type]
+
+    aValue.should.equal 100
+    component1.a.should.equal 100
+    entity.__a.should.equal 100
+    entity.a.should.equal 100
+    varChanges.should.equal 1
+
+    entity.a = 100
+    varChanges.should.equal 1
+    
+    entity.a = 200
+    aValue.should.equal 200
+    component1.a.should.equal 200
+    entity.__a.should.equal 200
+    entity.a.should.equal 200
+    varChanges.should.equal 2
+
+    component1.a = 200
+    varChanges.should.equal 2
+
+    component1.a = 300
+    aValue.should.equal 300
+    component1.a.should.equal 300
+    entity.__a.should.equal 300
+    entity.a.should.equal 300
+    varChanges.should.equal 3
