@@ -25,7 +25,7 @@ Create a new class with componentization that extends class and contains the pro
 ####Component = Component.syncs(prop1 [, prop2]...)
 Pass in a list of strings corresponding to properties on the component that will be pushed to the server on update.
 
-####Component.listensTo(event1 [, event2]...)
+####Component = Component.listensTo(event1 [, event2]...)
 Pass in a list of events corresponding to methods on the component that will be triggered by events issued on the parent entity.  Event1, event2... can either be strings or:
 
 ```coffeescript
