@@ -67,7 +67,7 @@ sentai = require sentai
 Componentize some classes.
 ```coffeescript
 # Use requisite (https://www.npmjs.org/package/requisite) to make this work in the browser
-$ = require jQuery
+$ = require 'jquery'
 
 class DomTextRenderer
   element: null
