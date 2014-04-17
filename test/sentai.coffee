@@ -1,5 +1,5 @@
 should = require('chai').should()
-Sentai = require '../src/sentai'
+Sentai = require '../lib/sentai'
 
 describe 'Sentai.componentize', ->
   it 'should create a new Component class from a class', ->
@@ -25,10 +25,10 @@ describe 'Sentai.componentize', ->
     component = entity._components[Component.type]
     entity.position.should.equal component.position
 
-    position = component.position = 
+    position = component.position =
       x: 2
       y: 2
-    
+
     entity.position.should.equal position
     component.__position.should.equal position
 
@@ -105,7 +105,7 @@ describe 'Sentai.entity', ->
     Component = Sentai.componentize(
       class Component
         change: (a, b)->
-          varChanges++  
+          varChanges++
           aValue = a
           bValue = b)
       .observes(change: ['a', 'b'])
@@ -163,7 +163,7 @@ describe 'Sentai.entity', ->
     varChanges.should.equal 1
 
     component2.a = 200
-    
+
     aValue.should.equal 200
     component1.a.should.equal 200
     component2.__a.should.equal 200
@@ -199,7 +199,7 @@ describe 'Sentai.entity', ->
 
     entity.a = 100
     varChanges.should.equal 1
-    
+
     entity.a = 200
     aValue.should.equal 200
     component1.a.should.equal 200
