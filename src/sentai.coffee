@@ -36,16 +36,42 @@ addSyncs = (sync)->
     else
       prototype._sync = prototype._sync.concat(sync)
     for v in sync
-      config = (__v) ->
-        prototype[__v] = prototype[v]
-        return {
-          get: ()->
-            return @[__v]
-          set: (val)->
-            @[__v] = val
-            @_entity[v] = val
-        }
-      Object.defineProperty(prototype, v, config('__' + v))
+      if v instanceof Object
+        #from to syntax
+        to = v.to
+        v = v.from
+        type = typeof to
+        if type == 'function'
+          config = (__v, v) ->
+            prototype[__v] = prototype[v]
+            return {
+              get: ()->
+                return @[__v]
+              set: (val)->
+                @[__v] = val
+                to.call(@_entity, val)
+            }
+        else if type =='string'
+          config = (__v, v, to) ->
+            prototype[__v] = prototype[v]
+            return {
+              get: ()->
+                return @[__v]
+              set: (val)->
+                @[__v] = val
+                @_entity[to] = val
+            }
+      else
+        config = (__v, v) ->
+          prototype[__v] = prototype[v]
+          return {
+            get: ()->
+              return @[__v]
+            set: (val)->
+              @[__v] = val
+              @_entity[v] = val
+          }
+      Object.defineProperty(prototype, v, config('__' + v, v, to))
   return @
 
 addListensTo = (listensTo)->
@@ -122,10 +148,12 @@ entity = ()->
       super
       options = _options = {} if !options?
       @_components = {}
+      componentInstances = []
       for component in components
         # check for special ids
         componentId = component.type
         componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
+        componentInstances.push(componentInstance)
         events = component.prototype._listensTo
         if events?
           for event in events
@@ -141,11 +169,21 @@ entity = ()->
             if cb?
               @on(event, cb, componentInstance, NewClass)
 
-      for component in components
-        sync = component.prototype._sync
+      for componentInstance in componentInstances
+        sync = componentInstance._sync
         if sync?
           for v in sync
-            @[v] = component.prototype['__' + v]
+            if v instanceof Object
+              #from to syntax
+              to = v.to
+              v = v.from
+              type = typeof to
+              if type == 'function'
+                to.call(@, componentInstance['__' + v])
+              else if type == 'string'
+                @[to] = componentInstance['__' + v]
+            else
+              @[v] = componentInstance['__' + v]
 
   for v, getSet of getSets
     config = (__v) ->

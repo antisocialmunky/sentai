@@ -16,21 +16,31 @@ describe 'Sentai.componentize', ->
       class Component
         position:
           x: 1
-          y: 1)
-      .sync('position')
+          y: 1
+        a: 2
+        b: 3)
+      .sync('position', {from: 'a', to: 'aa'}, {from: 'b', to: (val)-> @b = val+1})
 
     Clas = Sentai.entity(Component)
     entity = new Clas()
 
     component = entity._components[Component.type]
     entity.position.should.equal component.position
+    should.not.exist(entity.a)
+    entity.aa.should.equal component.a
+    entity.b.should.equal component.b+1
 
     position = component.position =
       x: 2
       y: 2
+    component.a = 22
+    component.b = 33
 
     entity.position.should.equal position
     component.__position.should.equal position
+    should.not.exist(entity.a)
+    entity.aa.should.equal component.a
+    entity.b.should.equal component.b+1
 
   it 'should chain properly', ->
     Component = Sentai.componentize(
