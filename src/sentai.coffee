@@ -104,7 +104,8 @@ componentize = (component, extensions)->
     _observes: null
     constructor: (entity, options)->
       @_entity = entity
-      super(options) 
+      super(options)
+      extensions.constructor.call(@, options) if extensions? && extensions.constructor?
 
   if extensions?
     for name, extension of extensions

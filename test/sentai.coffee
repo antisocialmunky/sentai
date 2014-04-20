@@ -11,6 +11,22 @@ describe 'Sentai.componentize', ->
     component = entity._components[Component.type]
     component._entity.should.equal entity
 
+  it 'should be able to extend constructor', ->
+    parent = false
+    child = false
+    Component = Sentai.componentize(
+      class Component
+        constructor: ()->
+          parent = true
+      constructor: ()->
+        child = true)
+
+    Clas = Sentai.entity(Component)
+    entity = new Clas()
+
+    parent.should.be.true
+    child.should.be.true
+
   it 'should sync the entity with the component variables', ->
     Component = Sentai.componentize(
       class Component
