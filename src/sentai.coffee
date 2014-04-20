@@ -19,7 +19,7 @@ class Events
     eventCtxs = @events[eventName]
     if eventCtxs
       for eventCtx in eventCtxs
-        if eventCtx.cb.call(eventCtxs.ctx, payload) == false
+        if eventCtx.cb.call(eventCtx.ctx, payload) == false
           return false
     return true
 
