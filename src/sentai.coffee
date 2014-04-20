@@ -93,28 +93,19 @@ addObserves = (observes)->
       prototype._observes[key] = val
   return @
 
-componentId = 0
 componentize = (component, extensions)->
-  id = componentId++
-  class NewComponent extends component
-    @type: id
-    _type: id
-    _sync: null
-    _listensTo: null
-    _observes: null
-    constructor: (entity, options)->
-      @_entity = entity
-      super(options)
-      extensions.constructor.call(@, options) if extensions? && extensions.constructor?
-
   if extensions?
     for name, extension of extensions
-      NewComponent.prototype[name] = extension
+      component.prototype[name] = extension
+
+  component.prototype._sync = null
+  component.prototype._listensTo = null
+  component.prototype._observes = null
   
-  NewComponent.sync = addSyncs
-  NewComponent.listensTo = addListensTo
-  NewComponent.observes = addObserves
-  return NewComponent
+  component.sync = addSyncs
+  component.listensTo = addListensTo
+  component.observes = addObserves
+  return component
 
 entity = ()->
   # Principle member of this closure
@@ -122,7 +113,7 @@ entity = ()->
   components =  Array.prototype.slice.call(arguments)
   for component in components
     if component? && component.prototype?
-      id = component.type
+      name = component.name
       # loop through all the observables
       observes = component.prototype._observes
       if observes?
@@ -136,9 +127,9 @@ entity = ()->
               getSet = getSets[v]
               if !getSet?
                 getSets[v] = getSet = []
-              # id will be looked up with actual component instance
+              # name will be looked up with actual component instance
               getSet.push(
-                ctx: id
+                ctx: name
                 cb: cb
                 vars: vars)
 
@@ -151,9 +142,10 @@ entity = ()->
       @_components = {}
       componentInstances = []
       for component in components
-        # check for special ids
-        componentId = component.type
-        componentInstance = @_components[componentId] = new component(@, options[componentId] || options)
+        # check for special name
+        name = component.name
+        componentInstance = @_components[name] = new component(@, options[name] || options)
+        componentInstance._entity = @
         componentInstances.push(componentInstance)
         events = component.prototype._listensTo
         if events?

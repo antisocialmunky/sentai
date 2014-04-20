@@ -8,24 +8,8 @@ describe 'Sentai.componentize', ->
     Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    component = entity._components[Component.type]
+    component = entity._components[Component.name]
     component._entity.should.equal entity
-
-  it 'should be able to extend constructor', ->
-    parent = false
-    child = false
-    Component = Sentai.componentize(
-      class Component
-        constructor: ()->
-          parent = true
-      constructor: ()->
-        child = true)
-
-    Clas = Sentai.entity(Component)
-    entity = new Clas()
-
-    parent.should.be.true
-    child.should.be.true
 
   it 'should sync the entity with the component variables', ->
     Component = Sentai.componentize(
@@ -40,7 +24,7 @@ describe 'Sentai.componentize', ->
     Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    component = entity._components[Component.type]
+    component = entity._components[Component.name]
     entity.position.should.equal component.position
     should.not.exist(entity.a)
     entity.aa.should.equal component.a
@@ -84,8 +68,8 @@ describe 'Sentai.entity', ->
     Clas = Sentai.entity(Component)
     entity = new Clas()
 
-    entity._components[Component.type]._entity.should.equal entity
-    entity._components[Component.type].should.be.instanceof Component
+    entity._components[Component.name]._entity.should.equal entity
+    entity._components[Component.name].should.be.instanceof Component
 
   it 'should correctly bind events defined using listensTo', ->
     ticked = false
@@ -177,8 +161,8 @@ describe 'Sentai.entity', ->
     Clas = Sentai.entity(Component1, Component2)
 
     entity = new Clas()
-    component1 = entity._components[Component1.type]
-    component2 = entity._components[Component2.type]
+    component1 = entity._components[Component1.name]
+    component2 = entity._components[Component2.name]
 
     aValue.should.equal 100
     component1.a.should.equal 100
@@ -215,7 +199,7 @@ describe 'Sentai.entity', ->
     Clas = Sentai.entity(Component1)
 
     entity = new Clas()
-    component1 = entity._components[Component1.type]
+    component1 = entity._components[Component1.name]
 
     aValue.should.equal 100
     component1.a.should.equal 100
