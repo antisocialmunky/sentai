@@ -146,7 +146,7 @@ entity = ()->
         # check for special name
         name = component.name
         component.prototype._entity = @
-        componentInstance = @_components[name] = new component(@, options[name] || options)
+        componentInstance = @_components[name] = new component(options[name] || options)
         componentInstance._entity = @
         component.prototype._entity = null
         componentInstances.push(componentInstance)
