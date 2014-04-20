@@ -1,6 +1,6 @@
 {
   "name": "sentai",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Reactive Entity Component System",
   "main": "lib/sentai",
   "scripts": {
