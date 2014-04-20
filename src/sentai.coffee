@@ -98,6 +98,7 @@ componentize = (component, extensions)->
     for name, extension of extensions
       component.prototype[name] = extension
 
+  component.prototype._entity = null
   component.prototype._sync = null
   component.prototype._listensTo = null
   component.prototype._observes = null
@@ -144,8 +145,10 @@ entity = ()->
       for component in components
         # check for special name
         name = component.name
+        component.prototype._entity = @
         componentInstance = @_components[name] = new component(@, options[name] || options)
         componentInstance._entity = @
+        component.prototype._entity = null
         componentInstances.push(componentInstance)
         events = component.prototype._listensTo
         if events?
@@ -179,7 +182,7 @@ entity = ()->
               @[v] = componentInstance['__' + v]
 
   for v, getSet of getSets
-    config = (__v) ->
+    config = (__v, getSet) ->
       return {
         get: ()->
           return @[__v]
@@ -193,7 +196,7 @@ entity = ()->
                 args.push(@[arg])  
               getSetConfig.cb.apply(@_components[getSetConfig.ctx], args)
       }
-    Object.defineProperty(NewClass.prototype, v, config('__' + v))
+    Object.defineProperty(NewClass.prototype, v, config('__' + v, getSet))
 
   return NewClass
 
