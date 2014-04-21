@@ -177,8 +177,12 @@ entity = ()->
               if type == 'function'
                 to.call(@, componentInstance['__' + v])
               else if type == 'string'
+                #clear out the values so we can trigger these correctly
+                @['__' + to] = null
                 @[to] = componentInstance['__' + v]
             else
+              #clear out the values so we can trigger these correctly
+              @['__' + v] = null
               @[v] = componentInstance['__' + v]
 
   for v, getSet of getSets
