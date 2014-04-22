@@ -50,6 +50,7 @@ addSyncs = (sync)->
               set: (val)->
                 @[__v] = val
                 to.call(@_entity, val)
+              enumerable:true
             }
         else if type =='string'
           config = (__v, v, to) ->
@@ -60,6 +61,7 @@ addSyncs = (sync)->
               set: (val)->
                 @[__v] = val
                 @_entity[to] = val
+              enumerable:true
             }
       else
         config = (__v, v) ->
@@ -70,6 +72,7 @@ addSyncs = (sync)->
             set: (val)->
               @[__v] = val
               @_entity[v] = val
+            enumerable:true
           }
       Object.defineProperty(prototype, v, config('__' + v, v, to))
   return @
@@ -99,9 +102,6 @@ componentize = (component, extensions)->
       component.prototype[name] = extension
 
   component.prototype._entity = null
-  component.prototype._sync = null
-  component.prototype._listensTo = null
-  component.prototype._observes = null
   
   component.sync = addSyncs
   component.listensTo = addListensTo
@@ -199,6 +199,7 @@ entity = ()->
               for arg in getSetConfig.vars
                 args.push(@[arg])  
               getSetConfig.cb.apply(@_components[getSetConfig.ctx], args)
+        enumerable:true
       }
     Object.defineProperty(NewClass.prototype, v, config('__' + v, getSet))
 
